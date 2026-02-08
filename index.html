@@ -646,6 +646,23 @@
         
         const streets = ['Main St', 'Oak Ave', 'Pine Dr', 'Maple Ln', 'Cedar Rd', 'Elm St', 'Birch Dr', 'Willow Way', 'Park Ave', 'Lake Dr', 'Hill St', 'Valley Rd', 'River Ln', 'Forest Ave', 'Sunset Blvd', 'Ocean Dr', 'Mountain View', 'Broadway', 'Washington St', 'Lincoln Ave'];
 
+        const emailDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com', 'aol.com'];
+
+        // US State abbreviations to full name mapping
+        const stateNames = {
+            'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+            'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+            'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+            'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+            'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+            'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+            'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+            'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+            'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+            'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+            'DC': 'District of Columbia'
+        };
+
         // Create animated background particles
         function createParticles() {
             const bgAnimation = document.getElementById('bgAnimation');
@@ -794,16 +811,26 @@
             const phone = generatePhone();
             const street = `${Math.floor(Math.random() * 9000) + 1000} ${streets[Math.floor(Math.random() * streets.length)]}`;
             
+            // Generate email
+            const emailPrefix = (firstName + '.' + lastName).toLowerCase();
+            const emailDomain = emailDomains[Math.floor(Math.random() * emailDomains.length)];
+            const email = `${emailPrefix}@${emailDomain}`;
+            
+            // Get full state name
+            const stateFullName = stateNames[locationData.state] || locationData.stateFull;
+            const stateDisplay = `${locationData.state} (${stateFullName})`;
+            
             return {
                 'First Name': firstName,
                 'Last Name': lastName,
+                'Email': email,
                 'Phone': phone,
                 'Street': street,
                 'City': locationData.city,
-                'State': locationData.state,
+                'State': stateDisplay,
                 'ZIP': locationData.zipCode,
                 'Country': locationData.country,
-                'Map Search': `${locationData.stateFull}, ${locationData.city}, ${locationData.zipCode}, homes`
+                'Map Search': `${stateFullName}, ${locationData.city}, ${locationData.zipCode}, homes`
             };
         }
 
@@ -829,6 +856,7 @@
             const icons = {
                 'First Name': '👤',
                 'Last Name': '👥',
+                'Email': '📧',
                 'Phone': '📱',
                 'Street': '🏠',
                 'City': '🌆',
@@ -860,6 +888,26 @@
             const mapSearchString = details['Map Search'];
             mapLink.href = `https://www.google.com/maps/search/${encodeURIComponent(mapSearchString)}`;
             
+            // Add Export All button after grid
+            const existingExport = document.getElementById('exportSection');
+            if (existingExport) existingExport.remove();
+            
+            const exportSection = document.createElement('div');
+            exportSection.id = 'exportSection';
+            exportSection.style.cssText = 'margin-top: 30px; text-align: center; padding: 25px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 2px dashed #667eea;';
+            exportSection.innerHTML = `
+                <h3 style="margin-bottom: 15px; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span class="icon">📦</span> Export Options
+                </h3>
+                <button class="btn btn-primary" onclick="exportAllData()" style="padding: 15px 35px; font-size: 1em;">
+                    <span class="icon">📄</span> Copy All Details
+                </button>
+            `;
+            
+            const resultsDiv = document.getElementById('results');
+            const mapSection = resultsDiv.querySelector('.map-section');
+            resultsDiv.insertBefore(exportSection, mapSection);
+            
             document.getElementById('results').style.display = 'block';
         }
 
@@ -879,6 +927,38 @@
             }).catch(err => {
                 console.error('Copy failed:', err);
                 alert('Failed to copy. Please try again.');
+            });
+        }
+
+        function exportAllData() {
+            let allText = 'Contact Details\n';
+            allText += '='.repeat(50) + '\n\n';
+            
+            const fields = ['FirstName', 'LastName', 'Email', 'Phone', 'Street', 'City', 'State', 'ZIP', 'Country'];
+            
+            fields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    const label = field.replace(/([A-Z])/g, ' $1').trim();
+                    allText += `${label}: ${element.textContent}\n`;
+                }
+            });
+            
+            allText += '\n' + '='.repeat(50);
+            
+            navigator.clipboard.writeText(allText).then(() => {
+                const exportBtn = event.target;
+                const originalHTML = exportBtn.innerHTML;
+                exportBtn.innerHTML = '<span class="icon">✓</span> All Data Copied!';
+                exportBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                
+                setTimeout(() => {
+                    exportBtn.innerHTML = originalHTML;
+                    exportBtn.style.background = '';
+                }, 3000);
+            }).catch(err => {
+                console.error('Export failed:', err);
+                alert('Failed to export data. Please try again.');
             });
         }
 
