@@ -594,28 +594,107 @@
             </div>
         </div>
 
-        <div style="background: white; padding: 30px; border-radius: 15px;">
-            <h2>🎉 Welcome to the Secure Contact Generator!</h2>
-            <p style="margin-top: 15px; color: #666;">You have been approved to use this application. Your license is valid and active.</p>
-            
-            <div class="alert alert-info" style="margin-top: 20px;">
-                <strong>📌 Quick Start:</strong><br>
-                1. Choose ZIP Code or IP Address lookup<br>
-                2. Enter the code/address<br>
-                3. Click Generate to create contact details<br>
-                4. All duplicates are automatically detected!
-            </div>
-
-            <!-- Add your main app features here from previous version -->
-            <div style="margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 10px;">
-                <h3>🔍 Generate Contact</h3>
-                <p style="color: #888; margin-bottom: 15px;">This is where your contact generation features will go</p>
-                <div style="text-align: center; padding: 40px;">
-                    <div style="font-size: 3em; margin-bottom: 15px;">✅</div>
-                    <h3>You're all set!</h3>
-                    <p style="color: #888;">The full application features are ready to use</p>
+        <!-- Dashboard Stats -->
+        <div style="background: white; padding: 25px; border-radius: 15px; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 20px;">📊 Your Dashboard</h3>
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="userStatTotal">0</div>
+                    <div class="stat-label">Total Generated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="userStatExcel">0</div>
+                    <div class="stat-label">From Excel</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="userStatRemaining">0</div>
+                    <div class="stat-label">Excel Remaining</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="userStatDuplicates">0</div>
+                    <div class="stat-label">Duplicates Found</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Main Content Tabs -->
+        <div style="background: white; padding: 30px; border-radius: 15px;">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchUserTab('generate')">🔍 Generate</button>
+                <button class="tab-btn" onclick="switchUserTab('history')">📜 History</button>
+                <button class="tab-btn" onclick="switchUserTab('excel')">📂 Excel Upload</button>
+            </div>
+
+            <!-- Generate Tab -->
+            <div id="userGenerateTab" class="tab-content active">
+                <h3 style="margin-bottom: 20px;">🔍 Generate Contact Details</h3>
+                
+                <div style="background: var(--bg); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <div class="input-group">
+                        <select id="userLookupMode" onchange="updatePlaceholder()">
+                            <option value="zip">📮 ZIP Code Lookup</option>
+                            <option value="ip">🌐 IP Address Lookup</option>
+                        </select>
+                        <input type="text" id="userSearchInput" placeholder="Enter ZIP Code (e.g., 33147)">
+                        <button class="btn btn-primary" onclick="userGenerateContact()" style="width: auto; padding: 15px 30px;">
+                            🔍 Generate
+                        </button>
+                    </div>
+                    <div class="input-group" style="margin-top: 15px;">
+                        <label style="font-weight: 600;">Bulk Generate:</label>
+                        <input type="number" id="userBulkCount" min="1" max="50" value="1" style="width: 120px;">
+                        <button class="btn btn-success" onclick="userBulkGenerate()" style="width: auto; padding: 15px 30px;">
+                            Generate Multiple
+                        </button>
+                    </div>
+                </div>
+
+                <div id="userLoading" class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 20px; color: var(--primary); font-weight: bold;">Fetching data...</p>
+                </div>
+
+                <div id="userResultsContainer"></div>
+            </div>
+
+            <!-- History Tab -->
+            <div id="userHistoryTab" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>📜 Generation History</h3>
+                    <button class="btn btn-danger" onclick="userClearHistory()" style="width: auto; padding: 10px 20px;">
+                        Clear All
+                    </button>
+                </div>
+                <div id="userHistoryContainer"></div>
+            </div>
+
+            <!-- Excel Upload Tab -->
+            <div id="userExcelTab" class="tab-content">
+                <h3 style="margin-bottom: 20px;">📂 Excel Data Management</h3>
+                
+                <div style="background: var(--bg); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 15px;">📥 Download Template</h4>
+                    <p style="color: #888; margin-bottom: 15px;">Download the Excel template with FirstName, LastName, Email columns</p>
+                    <button class="btn btn-success" onclick="userDownloadTemplate()" style="width: auto;">
+                        Download Excel Template
+                    </button>
+                </div>
+
+                <div style="background: var(--bg); padding: 25px; border-radius: 12px;">
+                    <h4 style="margin-bottom: 15px;">📤 Upload Your Data</h4>
+                    <p style="color: #888; margin-bottom: 15px;">Upload Excel file. Each data will auto-delete after use (no repeats!)</p>
+                    <input type="file" id="userExcelFile" accept=".xlsx,.xls" onchange="userHandleExcelUpload(event)" style="padding: 15px; border: 2px solid var(--border); border-radius: 10px; width: 100%;">
+                    <div id="userExcelStatus" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" style="position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, var(--success) 0%, #20c997 100%); color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; z-index: 10000; animation: slideInRight 0.3s ease;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="toastIcon" style="font-size: 1.5em;">✅</span>
+            <span id="toastMessage" style="font-weight: 600;"></span>
         </div>
     </div>
 
@@ -626,7 +705,7 @@
         
         const CONFIG = {
             // IMPORTANT: Change this to a strong password!
-            ADMIN_PASSWORD: 'Mur@d321',  // ⚠️ CHANGE THIS!
+            ADMIN_PASSWORD: 'admin123456',  // ⚠️ CHANGE THIS!
             
             // Application settings
             APP_NAME: 'Secure Contact Generator Pro',
@@ -637,7 +716,7 @@
             ENABLE_RIGHT_CLICK_PROTECTION: false,
             
             // Encryption key (CHANGE THIS!)
-            ENCRYPTION_KEY: 'Mur@d321' // ⚠️ CHANGE THIS!
+            ENCRYPTION_KEY: 'MySecretKey2024!' // ⚠️ CHANGE THIS!
         };
 
         // ==========================================
@@ -1090,6 +1169,596 @@
             };
             console.log('%c', devtools);
         })();
+
+        // ==========================================
+        // USER APP DATA & STATE
+        // ==========================================
+
+        let userExcelData = [];
+        let userUsedIndices = new Set();
+        let userGenerationHistory = [];
+        let userStats = {
+            total: 0,
+            excel: 0,
+            duplicates: 0,
+            remaining: 0
+        };
+
+        // Area codes by state (comprehensive list)
+        const stateAreaCodes = {
+            'FL': ['239', '305', '321', '352', '386', '407', '561', '689', '727', '754', '772', '786', '813', '850', '863', '904', '941', '954'],
+            'NY': ['212', '315', '332', '347', '516', '518', '585', '607', '631', '646', '680', '716', '718', '838', '845', '914', '917', '929', '934'],
+            'CA': ['209', '213', '310', '323', '408', '415', '424', '442', '510', '530', '559', '562', '619', '626', '650', '657', '661', '707', '714', '760', '805', '818', '831', '858', '909', '916', '925', '949', '951'],
+            'TX': ['210', '214', '254', '281', '325', '346', '361', '409', '430', '432', '469', '512', '682', '713', '726', '737', '806', '817', '830', '832', '903', '915', '936', '940', '956', '972', '979'],
+            'IL': ['217', '224', '309', '312', '331', '618', '630', '708', '773', '779', '815', '847', '872'],
+            'PA': ['215', '223', '267', '272', '412', '445', '484', '570', '610', '717', '724', '814', '878'],
+            'OH': ['216', '220', '234', '330', '380', '419', '440', '513', '567', '614', '740', '937'],
+            'GA': ['229', '404', '470', '478', '678', '706', '762', '770', '912'],
+            'NC': ['252', '336', '704', '743', '828', '910', '919', '980', '984'],
+            'MI': ['231', '248', '269', '313', '517', '586', '616', '734', '810', '906', '947', '989'],
+            'NJ': ['201', '551', '609', '732', '848', '856', '862', '908', '973'],
+            'VA': ['276', '434', '540', '571', '703', '757', '804'],
+            'WA': ['206', '253', '360', '425', '509', '564'],
+            'AZ': ['480', '520', '602', '623', '928'],
+            'MA': ['339', '351', '413', '508', '617', '774', '781', '857', '978'],
+            'TN': ['423', '615', '629', '731', '865', '901', '931'],
+            'IN': ['219', '260', '317', '463', '574', '765', '812', '930'],
+            'MO': ['314', '417', '573', '636', '660', '816'],
+            'MD': ['240', '301', '410', '443', '667'],
+            'WI': ['262', '414', '534', '608', '715', '920'],
+            'CO': ['303', '719', '720', '970'],
+            'MN': ['218', '320', '507', '612', '651', '763', '952'],
+            'SC': ['803', '839', '843', '854', '864'],
+            'AL': ['205', '251', '256', '334', '938'],
+            'LA': ['225', '318', '337', '504', '985'],
+            'KY': ['270', '364', '502', '606', '859'],
+            'OR': ['458', '503', '541', '971'],
+            'OK': ['405', '539', '580', '918'],
+            'CT': ['203', '475', '860', '959'],
+            'IA': ['319', '515', '563', '641', '712'],
+            'MS': ['228', '601', '662', '769'],
+            'AR': ['479', '501', '870'],
+            'KS': ['316', '620', '785', '913'],
+            'UT': ['385', '435', '801'],
+            'NV': ['702', '725', '775'],
+            'NM': ['505', '575'],
+            'WV': ['304', '681'],
+            'NE': ['308', '402', '531'],
+            'ID': ['208', '986'],
+            'HI': ['808'],
+            'NH': ['603'],
+            'ME': ['207'],
+            'RI': ['401'],
+            'MT': ['406'],
+            'DE': ['302'],
+            'SD': ['605'],
+            'ND': ['701'],
+            'AK': ['907'],
+            'VT': ['802'],
+            'WY': ['307'],
+            'DC': ['202']
+        };
+
+        const stateNames = {
+            'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+            'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+            'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+            'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+            'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+            'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+            'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+            'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+            'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+            'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+            'DC': 'District of Columbia'
+        };
+
+        const firstNames = ['Richard', 'John', 'Michael', 'David', 'James', 'Robert', 'William', 'Joseph', 'Thomas', 'Charles', 'Christopher', 'Daniel', 'Matthew', 'Anthony', 'Donald', 'Mark', 'Paul', 'Steven', 'Andrew', 'Kenneth', 'Mary', 'Patricia', 'Jennifer', 'Linda', 'Elizabeth', 'Barbara', 'Susan', 'Jessica', 'Sarah', 'Karen'];
+        const lastNames = ['Taylor', 'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Wilson', 'Anderson', 'Thomas', 'Moore', 'Jackson', 'Martin', 'Lee', 'Thompson', 'White', 'Harris', 'Clark', 'Lewis'];
+        const streets = ['Main St', 'Oak Ave', 'Pine Dr', 'Maple Ln', 'Cedar Rd', 'Elm St', 'Birch Dr', 'Willow Way', 'Park Ave', 'Lake Dr', 'Hill St', 'Valley Rd', 'River Ln', 'Forest Ave', 'Sunset Blvd', 'Ocean Dr', 'Mountain View', 'Broadway', 'Washington St', 'Lincoln Ave'];
+        const emailDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com'];
+
+        // ==========================================
+        // NOTIFICATION SYSTEM
+        // ==========================================
+
+        function showToast(message, icon = '✅', duration = 2000) {
+            const toast = document.getElementById('toastNotification');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastIcon.textContent = icon;
+            toastMessage.textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, duration);
+        }
+
+        // ==========================================
+        // USER APP FUNCTIONS
+        // ==========================================
+
+        function updatePlaceholder() {
+            const mode = document.getElementById('userLookupMode').value;
+            const input = document.getElementById('userSearchInput');
+            if (mode === 'zip') {
+                input.placeholder = 'Enter ZIP Code (e.g., 33147)';
+            } else {
+                input.placeholder = 'Enter IP Address (e.g., 8.8.8.8)';
+            }
+        }
+
+        function switchUserTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('user' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.add('active');
+        }
+
+        async function userGenerateContact() {
+            const mode = document.getElementById('userLookupMode').value;
+            const input = document.getElementById('userSearchInput').value.trim();
+
+            if (!input) {
+                showToast('Please enter a ' + (mode === 'zip' ? 'ZIP code' : 'IP address'), '⚠️');
+                return;
+            }
+
+            if (mode === 'zip') {
+                if (input.length !== 5 || !/^\d+$/.test(input)) {
+                    showToast('Please enter a valid 5-digit ZIP code', '⚠️');
+                    return;
+                }
+                await fetchZipData(input);
+            } else {
+                if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(input)) {
+                    showToast('Please enter a valid IP address', '⚠️');
+                    return;
+                }
+                await fetchIpData(input);
+            }
+        }
+
+        async function userBulkGenerate() {
+            const count = parseInt(document.getElementById('userBulkCount').value);
+            const mode = document.getElementById('userLookupMode').value;
+            const input = document.getElementById('userSearchInput').value.trim();
+
+            if (!input) {
+                showToast('Please enter a ' + (mode === 'zip' ? 'ZIP code' : 'IP address'), '⚠️');
+                return;
+            }
+
+            if (count < 1 || count > 50) {
+                showToast('Bulk count must be between 1 and 50', '⚠️');
+                return;
+            }
+
+            showUserLoading(true);
+
+            for (let i = 0; i < count; i++) {
+                if (mode === 'zip') {
+                    await fetchZipData(input, true);
+                } else {
+                    await fetchIpData(input, true);
+                }
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            showUserLoading(false);
+            showToast(`Generated ${count} contacts successfully!`, '✅', 3000);
+        }
+
+        async function fetchZipData(zipCode, silent = false) {
+            if (!silent) showUserLoading(true);
+
+            try {
+                const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
+                if (!response.ok) throw new Error('ZIP not found');
+
+                const data = await response.json();
+                const place = data.places[0];
+
+                const contact = generateContactData({
+                    city: place['place name'],
+                    state: place['state abbreviation'],
+                    stateFull: place['state'],
+                    zipCode: zipCode,
+                    country: 'US'
+                });
+
+                addContactToResults(contact, zipCode, 'ZIP');
+            } catch (error) {
+                if (!silent) showToast('Invalid ZIP code or API error', '❌');
+            } finally {
+                if (!silent) showUserLoading(false);
+            }
+        }
+
+        async function fetchIpData(ipAddress, silent = false) {
+            if (!silent) showUserLoading(true);
+
+            try {
+                const response = await fetch(`https://ipapi.co/${ipAddress}/json/`);
+                if (!response.ok) throw new Error('IP lookup failed');
+
+                const data = await response.json();
+                if (data.error || data.country_code !== 'US') {
+                    throw new Error('Please use US IP address');
+                }
+
+                const contact = generateContactData({
+                    city: data.city,
+                    state: data.region_code,
+                    stateFull: data.region,
+                    zipCode: data.postal || '00000',
+                    country: 'US'
+                });
+
+                addContactToResults(contact, ipAddress, 'IP');
+            } catch (error) {
+                if (!silent) showToast(error.message, '❌');
+            } finally {
+                if (!silent) showUserLoading(false);
+            }
+        }
+
+        function generateContactData(locationData) {
+            let firstName, lastName, email, source;
+
+            // Check Excel data first
+            if (userExcelData.length > 0 && userUsedIndices.size < userExcelData.length) {
+                let availableIndex;
+                do {
+                    availableIndex = Math.floor(Math.random() * userExcelData.length);
+                } while (userUsedIndices.has(availableIndex));
+
+                userUsedIndices.add(availableIndex);
+                const record = userExcelData[availableIndex];
+                firstName = record.FirstName;
+                lastName = record.LastName;
+                email = record.Email;
+                source = 'Excel';
+                userStats.excel++;
+                userStats.remaining = userExcelData.length - userUsedIndices.size;
+                
+                showToast(`Using Excel data (${userStats.remaining} remaining)`, '📁', 2000);
+            } else {
+                firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${emailDomains[Math.floor(Math.random() * emailDomains.length)]}`;
+                source = 'Random';
+                
+                if (userExcelData.length > 0) {
+                    showToast('All Excel data used! Switched to Random', '🎲', 2000);
+                } else {
+                    showToast('Generated with Random data', '🎲', 1500);
+                }
+            }
+
+            const phone = generatePhone(locationData.state);
+            const street = `${Math.floor(Math.random() * 9000) + 1000} ${streets[Math.floor(Math.random() * streets.length)]}`;
+            const stateFullName = stateNames[locationData.state] || locationData.stateFull;
+
+            return {
+                firstName,
+                lastName,
+                email,
+                phone,
+                street,
+                city: locationData.city,
+                state: `${locationData.state} (${stateFullName})`,
+                zip: locationData.zipCode,
+                country: locationData.country,
+                source,
+                mapSearch: `${stateFullName}, ${locationData.city}, ${locationData.zipCode}, homes`,
+                timestamp: new Date().toISOString()
+            };
+        }
+
+        function generatePhone(stateCode) {
+            const areaCodes = stateAreaCodes[stateCode] || ['555'];
+            const areaCode = areaCodes[Math.floor(Math.random() * areaCodes.length)];
+            const part1 = Math.floor(Math.random() * 900) + 100;
+            const part2 = Math.floor(Math.random() * 9000) + 1000;
+            return `${areaCode}${part1}${part2}`;
+        }
+
+        function addContactToResults(contact, input, type) {
+            // Check for duplicate
+            const isDuplicate = userGenerationHistory.some(h => 
+                h.contact.email === contact.email || 
+                h.contact.phone === contact.phone
+            );
+
+            if (isDuplicate) {
+                userStats.duplicates++;
+                showToast('⚠️ Duplicate detected!', '⚠️', 2000);
+            }
+
+            userStats.total++;
+
+            // Add to history
+            userGenerationHistory.unshift({
+                id: Date.now(),
+                contact,
+                input,
+                type,
+                isDuplicate,
+                timestamp: new Date().toISOString()
+            });
+
+            // Keep only last 100
+            if (userGenerationHistory.length > 100) {
+                userGenerationHistory.pop();
+            }
+
+            // Display
+            displayContact(contact, isDuplicate);
+            updateUserStats();
+            saveUserAppData();
+        }
+
+        function displayContact(contact, isDuplicate) {
+            const container = document.getElementById('userResultsContainer');
+            
+            const item = document.createElement('div');
+            item.className = 'result-item';
+            item.style.cssText = 'background: white; border: 2px solid ' + (isDuplicate ? 'var(--danger)' : 'var(--border)') + '; border-radius: 15px; padding: 25px; margin-bottom: 20px; animation: slideIn 0.4s ease; position: relative;';
+            
+            const fields = [
+                { label: '👤 First Name', value: contact.firstName },
+                { label: '👥 Last Name', value: contact.lastName },
+                { label: '📧 Email', value: contact.email },
+                { label: '📱 Phone', value: contact.phone },
+                { label: '🏠 Street', value: contact.street },
+                { label: '🌆 City', value: contact.city },
+                { label: '📍 State', value: contact.state },
+                { label: '📮 ZIP', value: contact.zip },
+                { label: '💾 Source', value: contact.source }
+            ];
+
+            let html = isDuplicate ? '<div style="position: absolute; top: 15px; right: 15px; background: var(--danger); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold;">⚠️ DUPLICATE</div>' : '';
+            
+            html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">';
+            
+            fields.forEach(field => {
+                const id = 'field_' + Math.random().toString(36).substr(2, 9);
+                html += `
+                    <div onclick="copyField('${id}')" style="background: var(--bg); padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <div style="font-size: 0.85em; color: #888; margin-bottom: 5px; text-transform: uppercase; font-weight: 600;">${field.label}</div>
+                        <div id="${id}" style="font-size: 1.2em; color: var(--text); font-weight: bold;">${field.value}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            html += `<div style="text-align: center;"><a href="https://www.google.com/maps/search/${encodeURIComponent(contact.mapSearch)}" target="_blank" class="btn btn-success" style="display: inline-block; text-decoration: none; width: auto; padding: 12px 25px;">🗺️ Open in Google Maps</a></div>`;
+            
+            item.innerHTML = html;
+            container.insertBefore(item, container.firstChild);
+        }
+
+        function copyField(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied: ' + text, '📋', 1500);
+            });
+        }
+
+        function updateUserStats() {
+            document.getElementById('userStatTotal').textContent = userStats.total;
+            document.getElementById('userStatExcel').textContent = userStats.excel;
+            document.getElementById('userStatRemaining').textContent = userStats.remaining;
+            document.getElementById('userStatDuplicates').textContent = userStats.duplicates;
+        }
+
+        function showUserLoading(show) {
+            document.getElementById('userLoading').style.display = show ? 'block' : 'none';
+        }
+
+        // ==========================================
+        // EXCEL FUNCTIONS
+        // ==========================================
+
+        function userDownloadTemplate() {
+            const wb = XLSX.utils.book_new();
+            const ws_data = [
+                ['FirstName', 'LastName', 'Email'],
+                ['John', 'Doe', 'john.doe@example.com'],
+                ['Jane', 'Smith', 'jane.smith@example.com'],
+                ['Mike', 'Johnson', 'mike.johnson@example.com']
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Template');
+            XLSX.writeFile(wb, 'contact_template.xlsx');
+            showToast('Template downloaded successfully!', '📥');
+        }
+
+        function userHandleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+                    if (jsonData.length === 0) {
+                        showToast('Excel file is empty!', '⚠️');
+                        return;
+                    }
+
+                    const requiredCols = ['FirstName', 'LastName', 'Email'];
+                    const hasAllCols = requiredCols.every(col => col in jsonData[0]);
+
+                    if (!hasAllCols) {
+                        showToast('Excel must have FirstName, LastName, Email columns!', '⚠️', 3000);
+                        return;
+                    }
+
+                    userExcelData = jsonData;
+                    userUsedIndices.clear();
+                    userStats.remaining = userExcelData.length;
+
+                    document.getElementById('userExcelStatus').innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ Successfully loaded ${userExcelData.length} contacts!<br>
+                            Auto-delete enabled: Each contact will be used only once.
+                        </div>
+                    `;
+
+                    updateUserStats();
+                    saveUserAppData();
+                    showToast(`Loaded ${userExcelData.length} contacts from Excel!`, '✅', 2000);
+                } catch (error) {
+                    showToast('Error reading Excel: ' + error.message, '❌', 3000);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // ==========================================
+        // HISTORY FUNCTIONS
+        // ==========================================
+
+        function loadUserHistory() {
+            const container = document.getElementById('userHistoryContainer');
+            
+            if (userGenerationHistory.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 60px; color: #888;"><div style="font-size: 3em; margin-bottom: 15px;">📭</div><h3>No history yet</h3><p>Start generating contacts to see your history here</p></div>';
+                return;
+            }
+
+            let html = '<table class="user-table"><thead><tr><th>Date/Time</th><th>Type</th><th>Input</th><th>Name</th><th>Email</th><th>Phone</th><th>Source</th><th>Status</th></tr></thead><tbody>';
+            
+            userGenerationHistory.forEach(item => {
+                const date = new Date(item.timestamp).toLocaleString();
+                html += `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${item.type === 'ZIP' ? '📮' : '🌐'} ${item.type}</td>
+                        <td>${item.input}</td>
+                        <td>${item.contact.firstName} ${item.contact.lastName}</td>
+                        <td>${item.contact.email}</td>
+                        <td>${item.contact.phone}</td>
+                        <td><span class="badge ${item.contact.source === 'Excel' ? 'badge-excel' : 'badge-random'}">${item.contact.source}</span></td>
+                        <td>${item.isDuplicate ? '<span class="badge badge-duplicate">Duplicate</span>' : '✅ Unique'}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function userClearHistory() {
+            if (confirm('Are you sure you want to clear all history? This cannot be undone.')) {
+                userGenerationHistory = [];
+                userStats.total = 0;
+                userStats.excel = 0;
+                userStats.duplicates = 0;
+                
+                updateUserStats();
+                loadUserHistory();
+                saveUserAppData();
+                
+                document.getElementById('userResultsContainer').innerHTML = '';
+                showToast('History cleared successfully!', '✅');
+            }
+        }
+
+        // ==========================================
+        // DATA PERSISTENCE
+        // ==========================================
+
+        function saveUserAppData() {
+            const currentUserData = sessionStorage.getItem('scg_current_user');
+            if (!currentUserData) return;
+            
+            const user = decrypt(currentUserData);
+            if (!user) return;
+
+            const appData = {
+                excelData: userExcelData,
+                usedIndices: Array.from(userUsedIndices),
+                history: userGenerationHistory,
+                stats: userStats
+            };
+
+            const key = `scg_app_data_${user.id}`;
+            localStorage.setItem(key, encrypt(appData));
+        }
+
+        function loadUserAppData() {
+            const currentUserData = sessionStorage.getItem('scg_current_user');
+            if (!currentUserData) return;
+            
+            const user = decrypt(currentUserData);
+            if (!user) return;
+
+            const key = `scg_app_data_${user.id}`;
+            const data = localStorage.getItem(key);
+            
+            if (data) {
+                const appData = decrypt(data);
+                if (appData) {
+                    userExcelData = appData.excelData || [];
+                    userUsedIndices = new Set(appData.usedIndices || []);
+                    userGenerationHistory = appData.history || [];
+                    userStats = appData.stats || { total: 0, excel: 0, duplicates: 0, remaining: 0 };
+                    
+                    updateUserStats();
+                    loadUserHistory();
+                }
+            }
+        }
+
+        // ==========================================
+        // INITIALIZATION UPDATE
+        // ==========================================
+
+        const originalShowMainApp = showMainApp;
+        showMainApp = function() {
+            originalShowMainApp();
+            loadUserAppData();
+        };
     </script>
+
+    <style>
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .badge-excel {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-random {
+            background: var(--warning);
+            color: #333;
+        }
+
+        .badge-duplicate {
+            background: var(--danger);
+            color: white;
+        }
+    </style>
 </body>
 </html>
