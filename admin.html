@@ -3,443 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>Admin Panel - Contact Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
+        .login-container {
+            max-width: 400px;
             margin: 100px auto;
-            animation: slideIn 0.6s ease;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-            border-radius: 20px 20px 0 0;
-        }
-
-        .content {
-            padding: 40px 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .alert-danger { background: #f8d7da; color: #721c24; }
-        .alert-success { background: #d4edda; color: #155724; }
-
-        .admin-panel {
+        .panel-container {
             max-width: 1200px;
-            margin: 20px auto;
+            margin: 0 auto;
         }
-
-        .admin-header {
-            background: white;
-            padding: 20px 30px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        h1 { color: #667eea; margin-bottom: 20px; }
+        h2 { color: #333; margin-bottom: 15px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
         }
-
-        .panel-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
         }
-
-        .stats-grid {
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn:hover { opacity: 0.9; }
+        .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin-bottom: 20px;
+            margin: 20px 0;
         }
-
         .stat-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
-            padding: 25px;
-            border-radius: 12px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
         }
-
         .stat-value {
             font-size: 2.5em;
             font-weight: bold;
             color: #667eea;
         }
-
-        .user-table {
+        .stat-label { color: #888; margin-top: 5px; }
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
         }
-
-        .user-table th,
-        .user-table td {
-            padding: 15px;
+        th, td {
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #ddd;
         }
-
-        .user-table th {
-            background: #f5f7fa;
-            font-weight: bold;
-        }
-
+        th { background: #f5f5f5; font-weight: bold; }
         .badge {
-            padding: 5px 12px;
+            padding: 4px 12px;
             border-radius: 12px;
-            font-size: 0.85em;
+            font-size: 12px;
             font-weight: bold;
         }
-
-        .badge-pending { background: #ffc107; color: #333; }
+        .badge-pending { background: #ffc107; color: #000; }
         .badge-approved { background: #28a745; color: white; }
-
-        .btn-small {
-            padding: 8px 15px;
-            font-size: 0.9em;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-success { background: #28a745; color: white; }
-        .btn-danger { background: #dc3545; color: white; }
-
+        .badge-rejected { background: #dc3545; color: white; }
         .license-key {
-            background: white;
+            background: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 1.1em;
+            font-family: monospace;
+            font-size: 18px;
             font-weight: bold;
             text-align: center;
             margin: 15px 0;
             border: 2px dashed #667eea;
         }
-
         .hidden { display: none; }
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .alert-danger { background: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
-    <!-- Login -->
-    <div id="adminLogin" class="container">
-        <div class="header">
-            <h1>👑 Admin Panel</h1>
-            <p>Authorized Access Only</p>
-        </div>
-        <div class="content">
-            <div id="adminAlert"></div>
-            <form onsubmit="adminLogin(event)">
-                <div class="form-group">
-                    <label>🔑 Admin Password</label>
-                    <input type="password" id="adminPassword" required>
-                </div>
-                <button type="submit" class="btn">Admin Login</button>
-            </form>
-        </div>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <h1>👑 Admin Panel</h1>
+        <p style="color: #888; margin-bottom: 20px;">Secure Access Only</p>
+        <div id="loginAlert"></div>
+        <input type="password" id="adminPassword" placeholder="Admin Password" onkeypress="if(event.key==='Enter') adminLogin()">
+        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="adminLogin()">Login</button>
+        <p style="margin-top: 20px; font-size: 12px; color: #888;">
+            Default password: admin123456<br>
+            ⚠️ Change this in code before deploying!
+        </p>
     </div>
 
     <!-- Admin Panel -->
-    <div id="adminPanel" class="admin-panel hidden">
-        <div class="admin-header">
-            <h2>👑 Admin Control Panel</h2>
-            <button class="btn-small btn-danger" onclick="adminLogout()">Logout</button>
+    <div id="adminPanel" class="panel-container hidden">
+        <div style="background: white; padding: 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 style="margin: 0;">👑 Admin Control Panel</h1>
+            <button class="btn btn-danger" onclick="adminLogout()">Logout</button>
         </div>
 
-        <div class="stats-grid">
+        <!-- Statistics -->
+        <div class="stats">
             <div class="stat-card">
-                <div style="font-size: 0.9em; color: #888; margin-bottom: 10px;">Total Users</div>
-                <div class="stat-value" id="statUsers">0</div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
             </div>
             <div class="stat-card">
-                <div style="font-size: 0.9em; color: #888; margin-bottom: 10px;">Pending</div>
-                <div class="stat-value" id="statPending">0</div>
+                <div class="stat-value" id="pendingUsers">0</div>
+                <div class="stat-label">Pending Approval</div>
             </div>
             <div class="stat-card">
-                <div style="font-size: 0.9em; color: #888; margin-bottom: 10px;">Approved</div>
-                <div class="stat-value" id="statApproved">0</div>
+                <div class="stat-value" id="approvedUsers">0</div>
+                <div class="stat-label">Approved Users</div>
             </div>
             <div class="stat-card">
-                <div style="font-size: 0.9em; color: #888; margin-bottom: 10px;">Licenses</div>
-                <div class="stat-value" id="statLicenses">0</div>
+                <div class="stat-value" id="totalLicenses">0</div>
+                <div class="stat-label">Available Licenses</div>
             </div>
         </div>
 
-        <div class="panel-section">
-            <h3>👥 User Management</h3>
-            <div id="usersList"></div>
+        <!-- License Generation -->
+        <div class="section">
+            <h2>🔑 License Management</h2>
+            <button class="btn btn-success" onclick="generateLicense()">Generate New License</button>
+            <div id="licenseDisplay"></div>
+            <div id="licenseList"></div>
         </div>
 
-        <div class="panel-section">
-            <h3>🔑 License Management</h3>
-            <div style="background: #f5f7fa; padding: 20px; border-radius: 10px; margin-top: 15px;">
-                <h4>Generate New License</h4>
-                <button class="btn btn-success" onclick="generateLicense()">Generate License Key</button>
-                <div id="generatedLicense"></div>
+        <!-- User Management -->
+        <div class="section">
+            <h2>👥 User Management</h2>
+            <div id="userList"></div>
+        </div>
+
+        <!-- Settings -->
+        <div class="section">
+            <h2>⚙️ Settings</h2>
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                <strong>⚠️ Change Admin Password</strong>
+                <p style="margin: 10px 0; font-size: 14px;">
+                    Current password is stored in the code (line 8).<br>
+                    Change <code>ADMIN_PASSWORD</code> value before deploying!
+                </p>
             </div>
-            <div id="licensesList" style="margin-top: 20px;"></div>
         </div>
     </div>
 
     <script>
-        // ⚠️ CHANGE THIS PASSWORD!
-        const CONFIG = {
-            ADMIN_PASSWORD: 'Mur@d321',  // ⚠️ CHANGE THIS!
-            ENCRYPTION_KEY: 'Mur@d321'
-        };
+        // ⚠️⚠️⚠️ CHANGE THIS PASSWORD BEFORE DEPLOYING! ⚠️⚠️⚠️
+        const ADMIN_PASSWORD = 'Mur@d321';
+        const ENCRYPTION_KEY = 'Mur@d321';
 
+        // Encryption Functions
         function encrypt(data) {
-            return CryptoJS.AES.encrypt(JSON.stringify(data), CONFIG.ENCRYPTION_KEY).toString();
+            return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
         }
 
         function decrypt(data) {
             try {
-                const bytes = CryptoJS.AES.decrypt(data, CONFIG.ENCRYPTION_KEY);
+                const bytes = CryptoJS.AES.decrypt(data, ENCRYPTION_KEY);
                 return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-            } catch {
-                return null;
-            }
+            } catch { return null; }
         }
 
+        // Data Management
         function getUsers() {
-            const data = localStorage.getItem('scg_users');
+            const data = localStorage.getItem('app_users');
             return data ? decrypt(data) || [] : [];
         }
 
         function saveUsers(users) {
-            localStorage.setItem('scg_users', encrypt(users));
+            localStorage.setItem('app_users', encrypt(users));
         }
 
         function getLicenses() {
-            const data = localStorage.getItem('scg_licenses');
+            const data = localStorage.getItem('app_licenses');
             return data ? decrypt(data) || [] : [];
         }
 
         function saveLicenses(licenses) {
-            localStorage.setItem('scg_licenses', encrypt(licenses));
+            localStorage.setItem('app_licenses', encrypt(licenses));
         }
 
-        function showAlert(containerId, message, type) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-            setTimeout(() => container.innerHTML = '', 5000);
-        }
-
-        function adminLogin(e) {
-            e.preventDefault();
+        // Admin Login
+        function adminLogin() {
             const password = document.getElementById('adminPassword').value;
-            
-            if (password === CONFIG.ADMIN_PASSWORD) {
-                sessionStorage.setItem('admin_logged_in', 'true');
-                document.getElementById('adminLogin').classList.add('hidden');
+            if (password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('admin_auth', 'true');
+                document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
                 loadAdminData();
             } else {
-                showAlert('adminAlert', 'Invalid admin password!', 'danger');
+                document.getElementById('loginAlert').innerHTML = 
+                    '<div class="alert alert-danger">Invalid password!</div>';
             }
         }
 
         function adminLogout() {
             if (confirm('Logout from admin panel?')) {
-                sessionStorage.removeItem('admin_logged_in');
+                sessionStorage.removeItem('admin_auth');
                 location.reload();
             }
         }
 
+        // Load Admin Data
         function loadAdminData() {
             const users = getUsers();
             const licenses = getLicenses();
 
-            document.getElementById('statUsers').textContent = users.length;
-            document.getElementById('statPending').textContent = users.filter(u => u.status === 'pending').length;
-            document.getElementById('statApproved').textContent = users.filter(u => u.status === 'approved').length;
-            document.getElementById('statLicenses').textContent = licenses.filter(l => !l.used).length;
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('pendingUsers').textContent = 
+                users.filter(u => u.status === 'pending').length;
+            document.getElementById('approvedUsers').textContent = 
+                users.filter(u => u.status === 'approved').length;
+            document.getElementById('totalLicenses').textContent = 
+                licenses.filter(l => !l.used).length;
 
-            loadUsersTable();
-            loadLicensesTable();
+            loadUserList();
+            loadLicenseList();
         }
 
-        function loadUsersTable() {
-            const users = getUsers();
-            const container = document.getElementById('usersList');
+        // Generate License
+        function generateLicense() {
+            const key = 'SCG-' + 
+                Math.random().toString(36).substr(2, 5).toUpperCase() + '-' +
+                Math.random().toString(36).substr(2, 5).toUpperCase() + '-' +
+                Math.random().toString(36).substr(2, 5).toUpperCase();
 
-            if (users.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">No users yet</p>';
+            const licenses = getLicenses();
+            licenses.push({
+                key: key,
+                created: new Date().toISOString(),
+                used: false,
+                usedBy: null
+            });
+            saveLicenses(licenses);
+
+            document.getElementById('licenseDisplay').innerHTML = `
+                <div class="license-key">${key}</div>
+                <button class="btn btn-primary" onclick="copyLicense('${key}')">Copy License</button>
+            `;
+
+            loadLicenseList();
+            loadAdminData();
+        }
+
+        function copyLicense(key) {
+            navigator.clipboard.writeText(key);
+            alert('License copied to clipboard!');
+        }
+
+        // Load License List
+        function loadLicenseList() {
+            const licenses = getLicenses();
+            if (licenses.length === 0) {
+                document.getElementById('licenseList').innerHTML = 
+                    '<p style="color: #888; padding: 20px; text-align: center;">No licenses generated yet</p>';
                 return;
             }
 
-            let html = '<table class="user-table"><thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<h3 style="margin-top: 30px;">All Licenses</h3><table><thead><tr><th>License Key</th><th>Status</th><th>Used By</th><th>Created</th></tr></thead><tbody>';
             
-            users.forEach(user => {
-                html += `
-                    <tr>
-                        <td>${user.name}</td>
-                        <td>${user.email}</td>
-                        <td><span class="badge badge-${user.status}">${user.status.toUpperCase()}</span></td>
-                        <td>
-                            ${user.status === 'pending' ? `
-                                <button class="btn-small btn-success" onclick="approveUser(${user.id})">✓ Approve</button>
-                                <button class="btn-small btn-danger" onclick="rejectUser(${user.id})">✗ Reject</button>
-                            ` : ''}
-                            <button class="btn-small btn-danger" onclick="deleteUser(${user.id})">Delete</button>
-                        </td>
-                    </tr>
-                `;
+            licenses.forEach(license => {
+                html += `<tr>
+                    <td style="font-family: monospace;">${license.key}</td>
+                    <td><span class="badge ${license.used ? 'badge-approved' : 'badge-pending'}">
+                        ${license.used ? 'Used' : 'Available'}
+                    </span></td>
+                    <td>${license.usedBy || '-'}</td>
+                    <td>${new Date(license.created).toLocaleDateString()}</td>
+                </tr>`;
             });
             
             html += '</tbody></table>';
-            container.innerHTML = html;
+            document.getElementById('licenseList').innerHTML = html;
         }
 
-        function approveUser(userId) {
+        // Load User List
+        function loadUserList() {
             const users = getUsers();
-            const user = users.find(u => u.id === userId);
+            if (users.length === 0) {
+                document.getElementById('userList').innerHTML = 
+                    '<p style="color: #888; padding: 20px; text-align: center;">No users registered yet</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Registered</th><th>Actions</th></tr></thead><tbody>';
+            
+            users.forEach(user => {
+                html += `<tr>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td><span class="badge badge-${user.status}">${user.status.toUpperCase()}</span></td>
+                    <td>${new Date(user.registered).toLocaleDateString()}</td>
+                    <td>
+                        ${user.status === 'pending' ? `
+                            <button class="btn btn-success" onclick="approveUser('${user.email}')">✓ Approve</button>
+                            <button class="btn btn-danger" onclick="rejectUser('${user.email}')">✗ Reject</button>
+                        ` : ''}
+                        <button class="btn btn-danger" onclick="deleteUser('${user.email}')">Delete</button>
+                    </td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('userList').innerHTML = html;
+        }
+
+        // User Actions
+        function approveUser(email) {
+            const users = getUsers();
+            const user = users.find(u => u.email === email);
             if (user) {
                 user.status = 'approved';
                 saveUsers(users);
                 loadAdminData();
-                alert('✅ User approved!');
+                alert('✅ User approved successfully!');
             }
         }
 
-        function rejectUser(userId) {
-            const users = getUsers();
-            const user = users.find(u => u.id === userId);
-            if (user) {
-                user.status = 'rejected';
-                saveUsers(users);
-                loadAdminData();
-                alert('❌ User rejected!');
+        function rejectUser(email) {
+            if (confirm('Reject this user?')) {
+                const users = getUsers();
+                const user = users.find(u => u.email === email);
+                if (user) {
+                    user.status = 'rejected';
+                    saveUsers(users);
+                    loadAdminData();
+                    alert('❌ User rejected!');
+                }
             }
         }
 
-        function deleteUser(userId) {
-            if (confirm('Delete this user?')) {
+        function deleteUser(email) {
+            if (confirm('Permanently delete this user?')) {
                 let users = getUsers();
-                users = users.filter(u => u.id !== userId);
+                users = users.filter(u => u.email !== email);
                 saveUsers(users);
                 loadAdminData();
                 alert('User deleted!');
             }
         }
 
-        function generateLicense() {
-            const key = 'SCG-' + Math.random().toString(36).substr(2, 9).toUpperCase() + '-' + 
-                        Math.random().toString(36).substr(2, 9).toUpperCase();
-            
-            const licenses = getLicenses();
-            licenses.push({
-                key,
-                createdAt: new Date().toISOString(),
-                used: false
-            });
-            saveLicenses(licenses);
-
-            document.getElementById('generatedLicense').innerHTML = `
-                <div class="license-key">${key}</div>
-                <button class="btn btn-success" onclick="copyLicense('${key}')">Copy License Key</button>
-            `;
-            
-            loadLicensesTable();
-            loadAdminData();
-        }
-
-        function copyLicense(key) {
-            navigator.clipboard.writeText(key);
-            alert('License key copied!');
-        }
-
-        function loadLicensesTable() {
-            const licenses = getLicenses();
-            const container = document.getElementById('licensesList');
-
-            if (licenses.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">No licenses generated yet</p>';
-                return;
-            }
-
-            let html = '<h4>All Licenses</h4><table class="user-table"><thead><tr><th>License Key</th><th>Status</th><th>Created</th></tr></thead><tbody>';
-            
-            licenses.forEach(license => {
-                html += `
-                    <tr>
-                        <td style="font-family: monospace;">${license.key}</td>
-                        <td><span class="badge ${license.used ? 'badge-pending' : 'badge-approved'}">${license.used ? 'Used' : 'Available'}</span></td>
-                        <td>${new Date(license.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                `;
-            });
-            
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
+        // Initialize
         window.onload = function() {
-            if (sessionStorage.getItem('admin_logged_in') === 'true') {
-                document.getElementById('adminLogin').classList.add('hidden');
+            if (sessionStorage.getItem('admin_auth') === 'true') {
+                document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
                 loadAdminData();
             }
